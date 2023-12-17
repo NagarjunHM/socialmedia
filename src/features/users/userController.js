@@ -37,3 +37,11 @@ export const userLogOutController = async (req, res, next) => {
 };
 
 // user log out from all devices
+export const userAlldeviceLogoutController = async (req, res, next) => {
+  try {
+    const result = await userAlldeviceLogoutController(req.cookies.jwtToken);
+    res.status(result.statusCode).json(result.msg);
+  } catch (err) {
+    next(err);
+  }
+};
