@@ -12,7 +12,7 @@ export const userSignUp = async (userDetails, filename) => {
       const newUser = new userModel({
         ...userDetails,
         password: password,
-        profilePicture: filename.path,
+        profilePicture: filename,
       });
       await newUser.save();
       return { statusCode: 201, msg: "user created successfully" };
@@ -155,6 +155,48 @@ export const getDetails = async (userId) => {
         statusCode: 404,
         msg: { msg: "user not found" },
       };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+// update user details
+export const updateUserDetails = async (userId, userDetails) => {
+  try {
+    if (userId) {
+      const user = await userModel
+        .findById(userId)
+        .select("-password -activeSessions");
+
+      if (user) {
+        if (userDetails.name) {
+          user.name = userDetails.name;
+        }
+
+        if (userDetails.email) {
+          user.email = userDetails.email;
+        }
+        if (userDetails.profilePicture) {
+          user.profilePicture = userDetails.profilePicture;
+        }
+        if (userDetails.gender) {
+          user.gender = userDetails.gender;
+        }
+
+        await user.save();
+        return {
+          msg: {
+            msg: "update successfull",
+            user: user,
+          },
+          statusCode: 201,
+        };
+      } else {
+        throw new customError("user not found", 400);
+      }
+    } else {
+      throw new customError("userId not found", 400);
     }
   } catch (err) {
     throw err;

@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import {
   userSignUp,
   userSignIn,
@@ -5,12 +6,13 @@ import {
   userLogOutAllDevices,
   getAllUsersDetails,
   getDetails,
+  updateUserDetails,
 } from "./userRepository.js";
 
 // user sign up
 export const userSignUpController = async (req, res, next) => {
   try {
-    const result = await userSignUp(req.body, req.file);
+    const result = await userSignUp(req.body, req.file.path);
     res.status(result.statusCode).json(result.msg);
   } catch (err) {
     next(err);
@@ -67,6 +69,23 @@ export const getAllUsersDetailsController = async (req, res, next) => {
 export const getDetailsController = async (req, res, next) => {
   try {
     const { statusCode, msg } = await getDetails(req.params.userId);
+    res.status(statusCode).json(msg);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// update details of the user
+export const updateUserDetailsController = async (req, res, next) => {
+  try {
+    let userDetails = req.body;
+    if (req.file) {
+      userDetails = { ...userDetails, profilePicture: req.file.path };
+    }
+    const { statusCode, msg } = await updateUserDetails(
+      jwt.decode(req.cookies.jwtToken).userId,
+      userDetails
+    );
     res.status(statusCode).json(msg);
   } catch (err) {
     next(err);
