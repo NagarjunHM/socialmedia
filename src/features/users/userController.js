@@ -3,6 +3,7 @@ import {
   userSignIn,
   userLogOut,
   userLogOutAllDevices,
+  getAllUsersDetails,
 } from "./userRepository.js";
 
 // user sign up
@@ -46,6 +47,16 @@ export const userLogOutAllDevicesController = async (req, res, next) => {
   try {
     const result = await userLogOutAllDevices(req.cookies.jwtToken);
     res.status(result.statusCode).json(result.msg);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// get all user details
+export const getAllUsersDetailsController = async (req, res, next) => {
+  try {
+    const { statusCode, msg } = await getAllUsersDetails();
+    res.status(statusCode).json(msg);
   } catch (err) {
     next(err);
   }

@@ -118,3 +118,20 @@ export const userLogOutAllDevices = async (token) => {
     throw err;
   }
 };
+
+export const getAllUsersDetails = async () => {
+  try {
+    const allUserDetails = await userModel.find().select("-activeSessions");
+    console.log(allUserDetails);
+    if (allUserDetails) {
+      return {
+        statusCode: 200,
+        msg: { msg: "retreive successfull", users: allUserDetails },
+      };
+    } else {
+      return { statusCode: 200, msg: "there is no users" };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
