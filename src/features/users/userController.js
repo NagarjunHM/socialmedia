@@ -8,7 +8,7 @@ import {
 // user sign up
 export const userSignUpController = async (req, res, next) => {
   try {
-    const result = await userSignUp(req.body);
+    const result = await userSignUp(req.body, req.file);
     res.status(result.statusCode).json(result.msg);
   } catch (err) {
     next(err);

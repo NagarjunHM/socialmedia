@@ -5,11 +5,15 @@ import bcrypt from "bcrypt";
 import customError from "../../middlewares/errorHandlerMiddleware.js";
 
 // user signup
-export const userSignUp = async (userDetails) => {
+export const userSignUp = async (userDetails, filename) => {
   try {
     if (userDetails.password || userDetails.password.trim() !== "") {
       const password = await bcrypt.hash(userDetails.password, 10);
-      const newUser = new userModel({ ...userDetails, password: password });
+      const newUser = new userModel({
+        ...userDetails,
+        password: password,
+        profilePicture: filename.path,
+      });
       await newUser.save();
       return { statusCode: 201, msg: "user created successfully" };
     } else {

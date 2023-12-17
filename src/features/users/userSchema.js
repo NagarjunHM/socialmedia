@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   gender: { type: String, enum: ["male", "female", "other"] },
   activeSessions: { type: Array },
+  profilePicture: { type: String },
 });
 
 export const userModel = mongoose.model("User", userSchema);
