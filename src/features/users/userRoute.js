@@ -3,14 +3,14 @@ import {
   userSignUpController,
   userSignInController,
   userLogOutController,
-  userAlldeviceLogoutController,
+  userLogOutAllDevicesController,
 } from "./userController.js";
 
 const router = express.Router();
 
 router.post("/signup", userSignUpController);
 router.get("/signin", userSignInController);
-router.get("/logout", userLogOutController);
-router.get("/all-device-logout", userAlldeviceLogoutController);
+router.post("/logout", userLogOutController);
+router.post("/logout-all-devices", userLogOutAllDevicesController);
 
 export default router;

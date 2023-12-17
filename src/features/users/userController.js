@@ -1,4 +1,9 @@
-import { userSignUp, userSignIn, userLogOut } from "./userRepository.js";
+import {
+  userSignUp,
+  userSignIn,
+  userLogOut,
+  userLogOutAllDevices,
+} from "./userRepository.js";
 
 // user sign up
 export const userSignUpController = async (req, res, next) => {
@@ -37,9 +42,9 @@ export const userLogOutController = async (req, res, next) => {
 };
 
 // user log out from all devices
-export const userAlldeviceLogoutController = async (req, res, next) => {
+export const userLogOutAllDevicesController = async (req, res, next) => {
   try {
-    const result = await userAlldeviceLogoutController(req.cookies.jwtToken);
+    const result = await userLogOutAllDevices(req.cookies.jwtToken);
     res.status(result.statusCode).json(result.msg);
   } catch (err) {
     next(err);

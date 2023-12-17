@@ -1,13 +1,20 @@
 import { userModel } from "./userSchema.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 import customError from "../../middlewares/errorHandlerMiddleware.js";
 
 // user signup
 export const userSignUp = async (userDetails) => {
   try {
-    const newUser = new userModel({ ...userDetails });
-    await newUser.save();
-    return newUser;
+    if (userDetails.password || userDetails.password.trim() !== "") {
+      const password = await bcrypt.hash(userDetails.password, 10);
+      const newUser = new userModel({ ...userDetails, password: password });
+      await newUser.save();
+      return { statusCode: 201, msg: "user created successfully" };
+    } else {
+      throw new customError("password cannot be empty", 400);
+    }
   } catch (err) {
     if (err.code == 11000) {
       throw new customError(
@@ -27,7 +34,8 @@ export const userSignIn = async (userDetails) => {
     const validUser = await userModel.findOne({ email: email });
 
     if (validUser !== null) {
-      if (validUser.password === password) {
+      const passwordMatch = await bcrypt.compare(password, validUser.password);
+      if (passwordMatch) {
         // generating jwt token
         const token = jwt.sign(
           { userId: validUser._id, email: validUser.email },
@@ -67,13 +75,14 @@ export const userLogOut = async (token) => {
 
       if (tokenIndex !== -1) {
         userDetails.activeSessions.splice(tokenIndex, 1);
+        await userDetails.save();
+      } else {
+        throw new customError("Token not found in active sessions", 401);
       }
-
-      await userDetails.save();
 
       return { msg: "logout successfull", statusCode: 200 };
     } else {
-      throw new customError("token not found", 404);
+      throw new customError("token not found", 401);
     }
   } catch (err) {
     throw err;
@@ -81,23 +90,25 @@ export const userLogOut = async (token) => {
 };
 
 // user log out from all devices
-export const userAlldeviceLogout = async (token) => {
+export const userLogOutAllDevices = async (token) => {
   try {
     if (token) {
       // remove all the activeSessions saved in the array
       const decodedToken = jwt.decode(token);
-      const userDetails = await userModel.findById(decodedToken);
+      const userDetails = await userModel.findById(decodedToken.userId);
 
       const tokenIndex = userDetails.activeSessions.indexOf(token);
 
       if (tokenIndex !== -1) {
         userDetails.activeSessions = [];
+        await userDetails.save();
+      } else {
+        throw new customError("Token not found in active sessions", 401);
       }
 
-      await userDetails.save();
       return { msg: "successfull logout from all devices", statusCode: 200 };
     } else {
-      throw new customError("token not found", 404);
+      throw new customError("token not found", 401);
     }
   } catch (err) {
     throw err;
