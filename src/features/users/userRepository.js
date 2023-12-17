@@ -119,17 +119,42 @@ export const userLogOutAllDevices = async (token) => {
   }
 };
 
+// get all users detail
 export const getAllUsersDetails = async () => {
   try {
-    const allUserDetails = await userModel.find().select("-activeSessions");
-    console.log(allUserDetails);
+    const allUserDetails = await userModel
+      .find()
+      .select("-activeSessions -password");
+
     if (allUserDetails) {
       return {
         statusCode: 200,
-        msg: { msg: "retreive successfull", users: allUserDetails },
+        msg: { msg: "retrieve successfull", users: allUserDetails },
       };
     } else {
       return { statusCode: 200, msg: "there is no users" };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+// get details of specific user by userId
+export const getDetails = async (userId) => {
+  try {
+    const userDetail = await userModel
+      .findById(userId)
+      .select("-password -activeSessions");
+    if (userDetail) {
+      return {
+        statusCode: 200,
+        msg: { msg: "retrieve successfull", user: userDetail },
+      };
+    } else {
+      return {
+        statusCode: 404,
+        msg: { msg: "user not found" },
+      };
     }
   } catch (err) {
     throw err;

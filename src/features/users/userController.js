@@ -4,6 +4,7 @@ import {
   userLogOut,
   userLogOutAllDevices,
   getAllUsersDetails,
+  getDetails,
 } from "./userRepository.js";
 
 // user sign up
@@ -56,6 +57,16 @@ export const userLogOutAllDevicesController = async (req, res, next) => {
 export const getAllUsersDetailsController = async (req, res, next) => {
   try {
     const { statusCode, msg } = await getAllUsersDetails();
+    res.status(statusCode).json(msg);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// get specific user details
+export const getDetailsController = async (req, res, next) => {
+  try {
+    const { statusCode, msg } = await getDetails(req.params.userId);
     res.status(statusCode).json(msg);
   } catch (err) {
     next(err);

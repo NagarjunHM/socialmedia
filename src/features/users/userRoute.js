@@ -5,6 +5,7 @@ import {
   userLogOutController,
   userLogOutAllDevicesController,
   getAllUsersDetailsController,
+  getDetailsController,
 } from "./userController.js";
 import { profilePictureUpload } from "../../middlewares/fileUploadMiddleware.js";
 
@@ -15,5 +16,6 @@ router.get("/signin", userSignInController);
 router.post("/logout", userLogOutController);
 router.post("/logout-all-devices", userLogOutAllDevicesController);
 router.get("/get-all-details", getAllUsersDetailsController);
+router.get("/get-details/:userId", getDetailsController);
 
 export default router;
