@@ -1,0 +1,1 @@
+*[userModel] schema validation and also need to do validation in for updating user before saving it into the userModel

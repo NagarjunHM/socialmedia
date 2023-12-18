@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import { connectToDB } from "./config.js";
 import { errorHandler } from "./src/middlewares/errorHandlerMiddleware.js";
 import userRouter from "./src/features/users/userRoute.js";
+import postRouter from "./src/features/posts/postRoute.js";
 import { authMiddleware } from "./src/middlewares/authMiddleware.js";
 
 const app = express();
@@ -18,7 +19,9 @@ app.use(cookieParser());
 app.get("/", authMiddleware, (req, res) => {
   res.json({ msg: "authenticated" });
 });
+
 app.use("/api/users", userRouter);
+app.use("/api/posts", postRouter);
 
 // error handler middleware
 app.use(errorHandler);

@@ -6,17 +6,21 @@ export const authMiddleware = async (req, res, next) => {
   const token = req.cookies.jwtToken;
 
   if (!token) {
-    throw new customError("token not found", 401);
+    throw new customError("token not found", 404);
   }
   try {
     const validToken = await jwt.verify(token, process.env.TOKEN_SECRET);
     if (validToken) {
       const userDetails = await userModel.findById(validToken.userId);
-      //   checking if the token is present in activeSessions
-      if (userDetails.activeSessions.includes(token)) {
-        next();
+      if (userDetails) {
+        if (userDetails.activeSessions.includes(token)) {
+          req.userId = userDetails._id;
+          next();
+        } else {
+          throw new customError("Token not found in active sessions", 404);
+        }
       } else {
-        throw new customError("Token not found in active sessions", 401);
+        throw new customError("user not found", 404);
       }
     }
   } catch (err) {
