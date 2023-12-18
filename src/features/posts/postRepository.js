@@ -58,3 +58,80 @@ export const deletePost = async (userId, postId) => {
     throw err;
   }
 };
+
+// fetch posts of all users
+export const fetchAllPost = async () => {
+  try {
+    const allPost = await postModel.find();
+
+    if (allPost) {
+      return { statusCode: 200, msg: { msg: "all posts", posts: allPost } };
+    } else {
+      return { statusCode: 200, msg: "no posts found" };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+// fetch post based on post id
+export const fetchPostById = async (postId) => {
+  try {
+    const post = await postModel.findById(postId);
+
+    if (post) {
+      return {
+        statusCode: 200,
+        msg: { msg: "post successfully retreived", posts: post },
+      };
+    } else {
+      return { statusCode: 200, msg: "no post found" };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+// fetch all users post
+export const fetchAllUserPost = async (userId) => {
+  try {
+    const post = await postModel.find({ userId: userId });
+
+    if (post.length > 0) {
+      return { statusCode: 200, msg: { msg: "all users post", posts: post } };
+    } else {
+      return { statusCode: 404, msg: { msg: "no posts" } };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+// update post
+export const updatePost = async (postId, newDetail) => {
+  try {
+    const postDetails = await postModel.findById(postId);
+    if (postDetails) {
+      const imagePath = postDetails.postImage;
+
+      if (newDetail.caption) {
+        postDetails.caption = newDetail.caption;
+      }
+
+      if (newDetail.postImage) {
+        postDetails.postImage = newDetail.postImage;
+      }
+
+      await postDetails.save();
+      deleteOldUploads(imagePath);
+      return {
+        statusCode: 200,
+        msg: { msg: "post modified", post: postDetails },
+      };
+    } else {
+      return { statusCode: 404, msg: "post not found" };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
