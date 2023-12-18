@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   gender: { type: String, enum: ["male", "female", "other"] },
   activeSessions: { type: Array },
   profilePicture: { type: String },
-  postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
+  postId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
 });
 
 export const userModel = mongoose.model("User", userSchema);

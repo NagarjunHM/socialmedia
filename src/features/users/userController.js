@@ -83,7 +83,7 @@ export const updateUserDetailsController = async (req, res, next) => {
       userDetails = { ...userDetails, profilePicture: req.file.path };
     }
     const { statusCode, msg } = await updateUserDetails(
-      jwt.decode(req.cookies.jwtToken).userId,
+      req.userId,
       userDetails
     );
     res.status(statusCode).json(msg);

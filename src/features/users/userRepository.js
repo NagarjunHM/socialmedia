@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import customError from "../../middlewares/errorHandlerMiddleware.js";
+import { deleteOldUploads } from "../../middlewares/fileUploadMiddleware.js";
 
 // user signup
 export const userSignUp = async (userDetails, filename) => {
@@ -170,10 +171,13 @@ export const updateUserDetails = async (userId, userDetails) => {
         .select("-password -activeSessions");
 
       if (user) {
+        // Store the old profile picture filename
+        const oldProfilePicture = user.profilePicture;
+
+        // Update user details
         if (userDetails.name) {
           user.name = userDetails.name;
         }
-
         if (userDetails.email) {
           user.email = userDetails.email;
         }
@@ -185,15 +189,21 @@ export const updateUserDetails = async (userId, userDetails) => {
         }
 
         await user.save();
+
+        // Delete the old profile photo if a new photo is provided
+        if (userDetails.profilePicture && oldProfilePicture) {
+          deleteOldUploads(oldProfilePicture);
+        }
+
         return {
           msg: {
-            msg: "update successfull",
+            msg: "Update successful",
             user: user,
           },
           statusCode: 201,
         };
       } else {
-        throw new customError("user not found", 400);
+        throw new customError("User not found", 400);
       }
     } else {
       throw new customError("userId not found", 400);

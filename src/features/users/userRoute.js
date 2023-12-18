@@ -19,10 +19,10 @@ router.post("/logout-all-devices", userLogOutAllDevicesController);
 router.get("/get-all-details", getAllUsersDetailsController);
 router.get("/get-details/:userId", getDetailsController);
 router.put(
-  "/update-details/:userId",
-  
+  "/update-details/",
+
   authMiddleware,
-profilePictureUpload,
+  profilePictureUpload,
   updateUserDetailsController
 );
 
