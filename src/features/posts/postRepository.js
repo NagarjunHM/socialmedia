@@ -13,7 +13,7 @@ export const createPost = async (userId, postDetails) => {
     await newPost.save({ session });
 
     if (newPost) {
-      const user = await userModel.findById(userId);
+      const user = await userModel.findById(userId).session(session);
       user.postId.push(newPost._id);
       await user.save({ session });
     } else {
@@ -40,33 +40,25 @@ export const deletePost = async (userId, postId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const deletedPost = await postModel.findOneAndDelete(
-      {
-        _id: postId,
-        userId: userId,
-      },
-      { session }
-    );
+    const deletedPost = await postModel.findByIdAndDelete(postId, { session });
 
-    if (deletedPost) {
-      // deleting the post from server
-      deleteOldUploads(deletedPost.postImage);
-
-      // deleting the postId from userModel
-      const user = await userModel.findById(userId);
-      const postIndex = user.postId.indexOf(postId);
-      if (postIndex !== -1) {
-        user.postId.splice(postIndex, 1);
-        await user.save({ session });
-      } else {
-        return { statusCode: 404, msg: "post not found" };
-      }
-    } else {
-      return {
-        statusCode: 404,
-        msg: { error: "Post not found" },
-      };
+    if (!deletedPost) {
+      return { statusCode: 404, msg: { error: "Post not found" } };
     }
+
+    // deleting the postId from userModel
+    const user = await userModel.findById(userId).session(session);
+    const postIndex = user.postId.indexOf(postId);
+    if (postIndex !== -1) {
+      user.postId.splice(postIndex, 1);
+      await user.save({ session });
+    } else {
+      return { statusCode: 404, msg: "post not found" };
+    }
+
+    // deleting the post from server
+    deleteOldUploads(deletedPost.postImage);
+
     // Commit the transaction
     await session.commitTransaction();
 
