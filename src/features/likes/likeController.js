@@ -14,12 +14,8 @@ export const getLikesController = async (req, res, next) => {
 
 export const toggleLikesController = async (req, res, next) => {
   try {
-    const { statusCode, msg } = await toggleLikes(
-      req.params.id,
-      req.body.type,
-      req.userId
-    );
-    res.status(statusCode).json(msg);
+    const result = await toggleLikes(req.params.id, req.body.type, req.userId);
+    res.status(result.statusCode).json(result.msg);
   } catch (err) {
     next(err);
   }
