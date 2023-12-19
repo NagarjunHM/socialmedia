@@ -7,11 +7,12 @@ import customError from "../../middlewares/errorHandlerMiddleware.js";
 export const getLikes = async (likedItem) => {
   try {
     const likes = await likeModel.find({ likedItem });
-    if (likes) {
-      return { statusCode: 200, msg: likes };
-    } else {
-      return { statusCode: 200, msg: "no likes" };
+    console.log(likes);
+    if (likes.length === 0) {
+      throw new customError("post or comment not found", 404);
     }
+
+    return { statusCode: 200, msg: likes };
   } catch (err) {
     throw err;
   }
