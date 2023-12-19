@@ -1,34 +1,52 @@
+import mongoose from "mongoose";
 import { userModel } from "../users/userSchema.js";
 import { postModel } from "./postSchema.js";
 import { deleteOldUploads } from "../../middlewares/fileUploadMiddleware.js";
 
 // create new post
 export const createPost = async (userId, postDetails) => {
+  // session start
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const newPost = new postModel({ userId: userId, ...postDetails });
-    await newPost.save();
+    await newPost.save({ session });
 
     if (newPost) {
       const user = await userModel.findById(userId);
       user.postId.push(newPost._id);
-      await user.save();
+      await user.save({ session });
+    } else {
+      throw new customError("post creation failed", 400);
     }
+
+    await session.commitTransaction();
+
     return {
       statusCode: 201,
       msg: { msg: "post created successfully", post: newPost },
     };
   } catch (err) {
+    await session.abortTransaction();
     throw err;
+  } finally {
+    session.endSession();
   }
 };
 
 // delete old post
 export const deletePost = async (userId, postId) => {
+  // session start
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const deletedPost = await postModel.findOneAndDelete({
-      _id: postId,
-      userId: userId,
-    });
+    const deletedPost = await postModel.findOneAndDelete(
+      {
+        _id: postId,
+        userId: userId,
+      },
+      { session }
+    );
 
     if (deletedPost) {
       // deleting the post from server
@@ -39,7 +57,7 @@ export const deletePost = async (userId, postId) => {
       const postIndex = user.postId.indexOf(postId);
       if (postIndex !== -1) {
         user.postId.splice(postIndex, 1);
-        await user.save();
+        await user.save({ session });
       } else {
         return { statusCode: 404, msg: "post not found" };
       }
@@ -49,13 +67,18 @@ export const deletePost = async (userId, postId) => {
         msg: { error: "Post not found" },
       };
     }
+    // Commit the transaction
+    await session.commitTransaction();
 
     return {
       statusCode: 200,
       msg: { msg: "post deleted successfully", deletedPost: deletedPost },
     };
   } catch (err) {
+    await session.abortTransaction();
     throw err;
+  } finally {
+    session.endSession();
   }
 };
 

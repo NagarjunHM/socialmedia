@@ -12,6 +12,7 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: [true, "image is required to create a post"],
     },
+    commentId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   },
   { timestamps: true }
 );

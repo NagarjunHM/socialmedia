@@ -8,6 +8,7 @@ import { connectToDB } from "./config.js";
 import { errorHandler } from "./src/middlewares/errorHandlerMiddleware.js";
 import userRouter from "./src/features/users/userRoute.js";
 import postRouter from "./src/features/posts/postRoute.js";
+import commentRouter from "./src/features/comments/commentRoute.js";
 import { authMiddleware } from "./src/middlewares/authMiddleware.js";
 
 const app = express();
@@ -22,6 +23,7 @@ app.get("/", authMiddleware, (req, res) => {
 
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
+app.use("/api/comments", commentRouter);
 
 // error handler middleware
 app.use(errorHandler);

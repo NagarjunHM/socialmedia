@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   activeSessions: { type: Array },
   profilePicture: { type: String },
   postId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  commentId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
 });
 
 export const userModel = mongoose.model("User", userSchema);
