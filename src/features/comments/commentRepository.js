@@ -61,11 +61,11 @@ export const fetchPostComments = async (postId) => {
   }
 };
 
-// delete comment
 export const deleteComment = async (commentId) => {
   // start session
   const session = await mongoose.startSession();
   session.startTransaction();
+
   try {
     const deletedComment = await commentModel.findByIdAndDelete(commentId, {
       session,
@@ -75,27 +75,19 @@ export const deleteComment = async (commentId) => {
       return { statusCode: 404, msg: { error: "Comment not found" } };
     }
 
-    // deleting the CommentId from userModel
-    const user = await userModel
-      .findById(deletedComment.userId)
-      .session(session);
-
-    const userCommentIndex = user.commentId.indexOf(commentId);
-    if (userCommentIndex !== -1) {
-      user.commentId.splice(userCommentIndex, 1);
-      await user.save({ session });
-    }
-
-    // deleting the CommentId from postModel
-    const post = await postModel
-      .findById(deletedComment.postId)
-      .session(session);
-
-    const postCommentIndex = post.commentId.indexOf(commentId);
-    if (postCommentIndex !== -1) {
-      post.commentId.splice(postCommentIndex, 1);
-      await post.save({ session });
-    }
+    // Use bulk write to update user and post models
+    await Promise.all([
+      userModel.updateOne(
+        { _id: deletedComment.userId },
+        { $pull: { commentId: commentId } },
+        { session }
+      ),
+      postModel.updateOne(
+        { _id: deletedComment.postId },
+        { $pull: { commentId: commentId } },
+        { session }
+      ),
+    ]);
 
     await session.commitTransaction();
     return {
