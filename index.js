@@ -11,6 +11,7 @@ import postRouter from "./src/features/posts/postRoute.js";
 import commentRouter from "./src/features/comments/commentRoute.js";
 import friendRouter from "./src/features/friends/friendRoute.js";
 import likeRouter from "./src/features/likes/likeRoute.js";
+import otpRouter from "./src/features/otps/otpRoute.js";
 import { authMiddleware } from "./src/middlewares/authMiddleware.js";
 
 const app = express();
@@ -18,16 +19,12 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// user route
-app.get("/", authMiddleware, (req, res) => {
-  res.json({ msg: "authenticated" });
-});
-
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/likes", likeRouter);
 app.use("/api/friends", friendRouter);
+app.use("/api/otp", otpRouter);
 
 // error handler middleware
 app.use(errorHandler);
