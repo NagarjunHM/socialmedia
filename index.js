@@ -12,12 +12,19 @@ import commentRouter from "./src/features/comments/commentRoute.js";
 import friendRouter from "./src/features/friends/friendRoute.js";
 import likeRouter from "./src/features/likes/likeRoute.js";
 import otpRouter from "./src/features/otps/otpRoute.js";
-import { authMiddleware } from "./src/middlewares/authMiddleware.js";
+
+import {
+  errorLogger,
+  requestLogger,
+} from "./src/middlewares/loggerMiddleware.js";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+// logger middleware
+app.use(requestLogger);
 
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
@@ -26,8 +33,8 @@ app.use("/api/likes", likeRouter);
 app.use("/api/friends", friendRouter);
 app.use("/api/otp", otpRouter);
 
-// error handler middleware
-app.use(errorHandler);
+// errorHandler
+app.use(errorLogger, errorHandler);
 
 app.listen(3000, () => {
   console.log("server is listening at port 3000");

@@ -37,7 +37,7 @@ export const otpSend = async (email) => {
   try {
     const user = await userModel.findOne({ email });
     if (!user) {
-      return { statusCode: 404, msg: "email not found" };
+      throw new customError("email not found", 404);
     }
 
     // Generate the TOTP token
@@ -49,7 +49,9 @@ export const otpSend = async (email) => {
     // Send the TOTP via email
     await sendEmail(user.email, "Your TOTP", `Your TOTP is: ${token}`);
 
+    // checking is record exists
     const otpRecordExist = await otpModel.findOne({ userId: user._id });
+
     if (otpRecordExist) {
       otpRecordExist.otp = token;
       otpRecordExist.save();
@@ -66,7 +68,7 @@ export const otpSend = async (email) => {
 };
 
 // verifying the otp and resetting the password
-export const optVerificationAndResetPassword = async (
+export const otpVerificationAndResetPassword = async (
   email,
   token,
   newPassword
@@ -74,12 +76,12 @@ export const optVerificationAndResetPassword = async (
   try {
     const user = await userModel.findOne({ email });
     if (!user) {
-      return { statusCode: 404, msg: "user not found" };
+      throw new customError("user not found", 404);
     }
 
     const validOtp = await otpModel.findOne({ userId: user._id, otp: token });
     if (!validOtp) {
-      return { statusCode: 404, msg: "invalid otp" };
+      throw new customError("invalid otp", 404);
     }
 
     // Verify the TOTP token
